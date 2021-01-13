@@ -7,12 +7,9 @@ Created on Mon Jan  4 22:13:07 2021
 
 ### Importing Relevant Packages
 import pandas as pd
-import numpy as np
 import streamlit as st
-import base64
-import io
+import matplotlib.pyplot as plt
 
-from sklearn import model_selection
 from sklearn.linear_model import LogisticRegression
 from sklearn.tree import DecisionTreeClassifier
 from sklearn.neighbors import KNeighborsClassifier
@@ -33,19 +30,8 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct, WhiteKernel
 from sklearn.neural_network import MLPRegressor 
 
-from sklearn.metrics import accuracy_score, f1_score, roc_auc_score, recall_score, precision_score
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, explained_variance_score, mean_absolute_percentage_error
-from sklearn.metrics import confusion_matrix, classification_report
-
-import seaborn as sns
-import matplotlib.pyplot as plt
-from mlxtend.plotting import plot_confusion_matrix
-from pandas.plotting import parallel_coordinates
-
-from ead_visualization_st import data_graph, decision_boundary_plot, plot_bar
-from ead_ml_tunning_st import filedownload, model_development
-
-
+from ead_visualization_st import data_graph, decision_boundary_plot
+from ead_ml_tunning_st import model_development
 
 ######################### Setting up Interactive Interface  #######################
 #---------------------------------#
@@ -167,15 +153,6 @@ st.sidebar.markdown("""
 st.sidebar.header('Modeling Type and Algorithms')
 model_type = st.sidebar.radio('Select Model', options=['Classification', 'Regression'])
 
-# ['RandomForestRegressor', 'ExtraTreesRegressor', 'BaggingRegressor',
-# 'GradientBoostingRegressor', 'AdaBoostRegressor', 
-# 'GaussianProcessRegressor', 'IsotonicRegression', 'ARDRegression', 
-# 'HuberRegressor', 'LinearRegression', 'LogisticRegression', 
-# 'LogisticRegressionCV', 'PassiveAggressiveRegressor', 
-# 'RandomizedLogisticRegression', 'SGDRegressor', 'TheilSenRegressor', 
-# 'RANSACRegressor', 'MultiOutputRegressor', 'KNeighborsRegressor', 
-# 'RadiusNeighborsRegressor', 'MLPRegressor', 'DecisionTreeRegressor', 
-# 'ExtraTreeRegressor', <class 'sklearn.svm.classes.SVR'>]
 
 ### Select algorithms
 st.sidebar.write('Select Algorithm(s)')
@@ -472,236 +449,9 @@ else:
                     cnt3 = 0
             st.markdown('#\n')
             
+##############################################################################################
 
 
 
-######################################################################
-        # st.write(df_sample.head(10))
-        # # Shape of data
-        # st.write('*Dimensions of dataset*')
-        # st.info(f'{df_sample.shape[0]} **rows**,  {df_sample.shape[1]} **columns**')
-        
-        # st.write('**Stats of dataset**')
-        # st.write('*Descriptive stats*')
-        # st.write(df_sample.describe())
-        # df_more_stats = pd.DataFrame(df_sample.isnull().sum(), columns=['Missing_Values'])
-        # df_more_stats['Zeros'] = df_sample.isin([0]).sum()
-        # df_more_stats['SKEWNESS'] = df_sample.kurtosis()
-        # df_more_stats['KURTOSIS'] = df_sample.kurtosis()
-        # st.write('*Missing Values, Zeros, Skewness, and Kurtosis*',df_more_stats)
-        
-        # ### Dataset and Preprocessing
-        # st.write('**Select Y variable:**')
-        # y_val = st.selectbox('', options = df_sample.columns)
-        # st.write('**Select X variables:**')
-        # x_vals =  list(df_sample.columns)
-        # x_vals.remove(y_val)
-        # sel_x_vals = st.multiselect('', options= x_vals, default=x_vals)
-        # st.markdown('#\n')
-        
-        # ### Graphs from final modeified dataset
-        # st.warning('**2.0 Visualize** the Dataset')
-        # graph_sel = st.select_slider('Select plot', options=['correlation', 'scatter', 'box', 'parallel_coordinates', 'violin', 'histogram'])
-        
-        # try:
-        #     graph_list = data_graph(df_sample[sel_x_vals + [y_val]], classes=y_val, plt_type=graph_sel, mdl_type=model_type) 
-        # except ValueError as ve1:
-        #     st.error(f'''**Input Error:** {ve1}\n
-        #              X variables cannot be a STRING. Remove input of X variable(s) with string values.
-        #             ''')
-        # st.markdown('#\n')
 
 
-# images_01.jpg
-# https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcQtCC2lnT9Kxr3-QxEEbt8uz_ROrUBE0vyy1w&usqp=CAU
-# https://img.pixers.pics/pho_wat(s3:700/FO/51/62/73/20/700_FO51627320_38b000ce4e7073b9a223a545e94df174.jpg,700,481,cms:2018/10/5bd1b6b8d04b8_220x50-watermark.png,over,480,431,jpg)/wall-murals-word-cloud-data-analysis.jpg.jpg
-
-
-# page_bg_img = '''
-# <style>
-# body {
-# background-image: url("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTQ8eIUpZ0PNGh8bPdUCVgQNC0Wk6eC3tswoQ&usqp=CAU");
-# background-size: cover;
-# }
-# </style>
-# '''
-# st.markdown(page_bg_img, unsafe_allow_html=True)
-
-# st.markdown("""
-# <style>
-# body {
-#     color: #fff;
-#     background-color: #253485;
-# }
-# </style>
-#     """, unsafe_allow_html=True)
-
-
-# 	# Spot Check Algorithms
-# 	models_clf = {'KNN' : KNeighborsClassifier(),
-#                   'CART': DecisionTreeClassifier(),
-#                   'NB'  : GaussianNB(),
-#                   'SVM' : SVC(gamma='auto'),
-#                   'GB'  : GradientBoostingClassifier(loss='deviance', learning_rate=l_rate, n_estimators=n_trees, max_depth=m_depth),
-#                   'AB'  : AdaBoostClassifier(n_estimators=n_trees, random_state=seed),
-#                   'LDA' : LinearDiscriminantAnalysis(),
-#                   'LR'  : LogisticRegression(),
-#                   'RF'  : RandomForestClassifier(),
-#                   'QDA' : QuadraticDiscriminantAnalysis(),
-#                   'GP'  : GaussianProcessClassifier(1.0 * RBF(1.0)),
-#                   'ANN' : MLPClassifier(alpha=1, max_iter=1000)
-#                   }
-    
-# 	models_reg = {'KNN' : KNeighborsRegressor(),
-#                   'CART': DecisionTreeRegressor(),
-#                   'NB'  : BayesianRidge(),
-#                   'SVM' : SVR(C=1.0, epsilon=0.2),
-#                   'GB'  : GradientBoostingRegressor(learning_rate=l_rate, n_estimators=n_trees),
-#                   'AB'  : AdaBoostRegressor(n_estimators=n_trees, random_state=seed),
-#                   'RF'  : RandomForestRegressor(),
-#                   'LR'  : LinearRegression(),
-#                   'GP'  : GaussianProcessRegressor(kernel=(DotProduct() + WhiteKernel())),
-#                   'ANN' : MLPRegressor(max_iter=500, learning_rate='constant'), ## 'adaptive', 'constant' by default
-#                   'ET'  : ExtraTreesRegressor(n_estimators=100),
-#                   'HR'  : HuberRegressor() 
-#                   }
-# 	#global models
-# 	models = {}
-# 	#models = []
-# 	if out_put.lower() == 'classification':
-# 		scoring = score_metric
-# 		for name in sel_algms:
-# 			models[name] = models_clf[name]
-      
-# 	elif out_put.lower() == 'regression':
-# 		scoring = score_metric
-# 		for name in sel_algms:
-# 			models[name] = models_reg[name]
-# 	else: '=> Invalid input for argument: "output"'
-
-#         ## Decision Boundaries
-# 		if st.button("Generate Boundary Plots"):
-#  			st.success('**Decision Boundary Plots** of Model(s)')
-#  			st.error('''**Under Development**\n
-#                   This section will soon be deployed to provide further interpretation 
-#                   and enhance user insight into the behavior of the models.''')
-         	
-#  			st.write('**Select *ONLY* two variables**')
-#  			sel_x = st.multiselect(' ', options= list(dataframe.columns), default=list(dataframe.columns[0:2]))
-#     		#st.write('X values', dataframe[sel_x].values)
-            
-#  			cnt3 = 0
-#  			db_cols = st.beta_columns(num_cols)
-#  			for name, model in models.items():
-# 				fig1, ax1 = plt.subplots(figsize=(5, 3))
-# 				ax1 = decision_boundary_plot(model, name, X_train[sel_x], X_validation, Y_train, Y_validation)
-#                 # Display decision boundaries in plot columns/grid
-# 				db_cols[cnt3].pyplot(fig1)
-#                 # Display download links download columns/grid               
-# 				cnt3 += 1
-# 				if cnt3 > num_cols - 1:
-#  					cnt3 = 0
-#  			st.markdown('#\n')
-
-
-    # st.error('''**Under Development**\n
-    #               This section will soon be deployed to provide further interpretation 
-    #               and enhance user insight into the behavior of the models.''')
-         	
-# 	st.write('**Select *ONLY* two variables**')
-# 	sel_x = st.multiselect(' ', options= list(df.columns), default=list(df.columns[0:2]))
-    		#st.write('X values', dataframe[sel_x].values)
-
-
-    #     mybuff = io.StringIO()
-    #     df.write_html(mybuff, include_plotlyjs='cdn')
-    #     mybuff = io.BytesIO(mybuff.getvalue().encode())
-    #     b64 = base64.b64encode(mybuff.read()).decode()
-    #     href = f'<a href="data:text/html;charset=utf-8;base64, {b64}" download="plot.html">Download plot</a>'
-    #     # png = df.savefig('algm.png')
-    #     # b64 = base64.b64encode(png.encode()).decode()
-    #     # href = f'<a href="data:file/png;base64,{b64}" download="confusion_matrix-{algm_name}.png">Download PNG File - {algm_name}</a>' 
-
-#         # Download Reports
-# 		st.info('Download **Reports**')
-# 		cnt3 = 0
-# 		dl_rpt_cols = st.beta_columns(num_cols)
-# 		for name, report in dict_report.items():
-# 			data = pd.read_csv(io.StringIO(report))
-# 			dl_rpt_cols[cnt3].markdown(filedownload(data, f_ext='txt', algm_name=name), unsafe_allow_html=True)
-# 			cnt3 += 1
-# 			if cnt3 > num_cols - 1:
-# 				cnt3 = 0
-# 		st.markdown('#\n')
-
-    # graph_list = data_graph(df[sel_x_vals + [y_val]], classes=y_val, mdl_type=model_type) #plt_type=graph_sel,
-    # graph_sel = st.select_slider('Select plot', options=['correlation', 'scatter', 'box'])
-    # if graph_sel == 'correlation':
-    #     st.pyplot(graph_list[0])
-    # elif graph_sel == 'scatter':
-    #     st.pyplot(graph_list[1])
-    # else: 
-    #     st.pyplot(graph_list[2])
-
-# 	data_str = dict_report['KNN']
-# 	data = io.StringIO(data_str)
-# 	st.table(pd.read_csv(data, delimiter="\t"))
-
-
-# 	plot_dim_list = [[1,1], [1,2], [1,3], [2,2], [2,3], [2,3], [3,3], [3,3], [3,3]]
-# 	rows, colns = plot_dim_list[len(algm_list) - 1]
-# 	st.write(f'({rows}, {colns})')
-# 	cnt = 0
-# 	fig, axs = plt.subplots(1, 3)
-# 	fig.tight_layout()
-# 	for mdl_name, df_cm in dict_cm.items():  #ax=axs[cnt // 3][cnt % 3],
-# 		sns.heatmap(df_cm, annot=True,  ax=axs[1, 3], annot_kws={"size": 8}) 
-# 		#axs[cnt // 3][cnt % 3].set_title(mdl_name, size=10)
-# 		#axs[cnt // colns][cnt % colns].tick_params(axis='both', which='major', labelsize=8)
-# 		#axs[cnt // colns][cnt % colns].tick_params(labelrotation=0)
-# 		cnt += 1
-# 	st.pyplot(fig)
-
-
-    # colSkew, colKurt = st.beta_columns(2)
-    # colSkew.table(df.skew())
-    # colKurt.table(df.kurtosis())
-    # st.info(f'''*Skewness*\n 
-    #         {dict(df.skew())}''')
-    # st.info(f'''*Kurtosis*\n 
-    #         {dict(df.kurtosis())}''')
-
-# score_clf  = {'accuracy'     : accuracy_score(Y_validation, prediction),
-#                   'f1'           : f1_score(Y_validation, prediction),
-#                    'f1_weighted'  : f1_score(Y_validation, prediction),
-#                    'roc_auc'      : roc_auc_score(Y_validation, prediction),
-#                    'recall'       : recall_score(Y_validation, prediction),
-#                    'precision'    : precision_score(Y_validation, prediction)}
-
-
-
-#####################################
-
-# ### Importing classification data
-# feature_names = ['sepal_length', 'sepal_width', 'petal_length', 'petal_width', 'class']
-
-# df_clf = pd.read_csv('http://archive.ics.uci.edu/ml/machine-learning-databases/iris/iris.data', names=feature_names)
-# print('Classif Data:\n', df_clf)
-# print()
-
-# my_model_clf = model_development(df_clf, out_put='categorical')
-# print('*** Classif Model\n', my_model_clf)
-# print('\n')
-
-
-# ### Importing regression data
-# boston = datasets.load_boston()
-# df_reg = pd.DataFrame(boston['data'], columns=boston.feature_names)
-# df_reg['response'] = boston['target']
-# print('Regression Data:\n', df_reg)
-# print()
-# df_reg.to_csv('Boston_dataset.csv')
-
-# my_model_red = model_development(df_reg, out_put='continuous')
-# print('*** Regression Model\n', my_model_red)
-# print('\n')
