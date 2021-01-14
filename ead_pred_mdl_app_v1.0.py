@@ -51,17 +51,31 @@ html_main_header = '''
 
 st.markdown(html_main_header.format("#078E61", "white", main_header), unsafe_allow_html=True)
 
-col1, mid, col2 = st.beta_columns([2.5,10,2.5])
+# "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs2R2RNHAJAhQbW7NXlbgRSBmf2QicIa5cYw&usqp=CAU"
+# "https://symbolikon.com/wp-content/uploads/edd/2019/09/Adinkra-akomantoaso-bold-400w.png"
+# "https://www.hartenergy.com/sites/default/files/image/2019/02/predictiveanalyticswordcloud.jpg"
+# "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wawa_aba.png"
+# "https://symbolikon.com/wp-content/uploads/edd/2019/09/Adinkra-nsaa-bold-400w.png"
+
+col1, col3, mid, col2, col4 = st.beta_columns([1,1,2,1,1])
 with col1:
     st.write('\n ###')
-    st.image("https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs2R2RNHAJAhQbW7NXlbgRSBmf2QicIa5cYw&usqp=CAU", use_column_width=True)
-    st.image("https://symbolikon.com/wp-content/uploads/edd/2019/09/Adinkra-akomantoaso-bold-400w.png", use_column_width=True)
+    st.image("Adinkra-Excellence.jpeg", width=200, use_column_width=True)
+    st.image("Adinkra-Black_Wisdom.jpeg", width=200, use_column_width=True)
+with col3:
+    st.write('\n ###')
+    st.image("Adinkra-Black_Knowledge.jpeg", width=200, use_column_width=True)
+    st.image("Adinkra-Perseverance.jpeg", width=200, use_column_width=True)
 with mid:
-    st.image("https://www.hartenergy.com/sites/default/files/image/2019/02/predictiveanalyticswordcloud.jpg", width=500, use_column_width=True)
+    st.image("Adinkra-Supremacy.jpeg", width=400, use_column_width=True)
 with col2:
     st.write('\n ###')
-    st.image("https://upload.wikimedia.org/wikipedia/commons/f/ff/Wawa_aba.png", use_column_width=True)
-    st.image("https://symbolikon.com/wp-content/uploads/edd/2019/09/Adinkra-nsaa-bold-400w.png", use_column_width=True)
+    st.image("Adinkra-Black_Perseverance.jpeg", width=200, use_column_width=True)
+    st.image("Adinkra-Knowledge.jpeg", width=200, use_column_width=True)
+with col4:
+    st.write('\n ###')
+    st.image("Adinkra-Wisdom.jpeg", width=200, use_column_width=True)
+    st.image("Adinkra-Black_Excellence.jpeg", width=200, use_column_width=True)
 
 st.info('**General and Technical Information**')
 
