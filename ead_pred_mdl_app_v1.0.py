@@ -61,12 +61,14 @@ col1, col3, mid, col2, col4 = st.beta_columns([1,1,2,1,1])
 with col1:
     st.write('\n ###')
     st.image("Adinkra-Excellence.jpeg", width=200, use_column_width=True)
+    st.write('\n ###')
     st.image("Adinkra-Black_Wisdom.jpeg", width=200, use_column_width=True)
 with col3:
     st.write('\n ###')
     st.image("Adinkra-Black_Knowledge.jpeg", width=200, use_column_width=True)
     st.image("Adinkra-Perseverance.jpeg", width=200, use_column_width=True)
 with mid:
+    st.write('\n #####')
     st.image("Adinkra-Supremacy.jpeg", width=400, use_column_width=True)
 with col2:
     st.write('\n ###')
@@ -75,6 +77,7 @@ with col2:
 with col4:
     st.write('\n ###')
     st.image("Adinkra-Wisdom.jpeg", width=200, use_column_width=True)
+    st.write('\n ###')
     st.image("Adinkra-Black_Excellence.jpeg", width=200, use_column_width=True)
 
 st.info('**General and Technical Information**')

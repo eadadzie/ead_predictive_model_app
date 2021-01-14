@@ -16,7 +16,6 @@ from pandas.plotting import parallel_coordinates
 
 
 
-
 ################################################################################################
 
 # Plotting decision regions
@@ -24,20 +23,24 @@ def decision_boundary_plot(model, mdl_name, dataframe, y_val, x_vals, split_size
     # Select X and Y variables
     X = dataframe.loc[:, x_vals]
     Y = dataframe.loc[:, y_val]
+    
+    seed = (100 - split_size) / 100
+    
     # Split data
-    x_train, x_test, y_train, y_test = model_selection.train_test_split(X, Y, test_size=split_size, random_state=rand_state)
+    x_train, x_test, y_train, y_test = model_selection.train_test_split(X, Y, test_size=seed, random_state=rand_state)
     # Encode y values
     uni_vals = sorted(y_train.unique().tolist())
     y_val_en = y_train.replace({val:num for num, val in enumerate(uni_vals)}).copy()
     
-    # plot decision boundary for pedal width vs pedal length
-    plot_step = 0.01
+    # plot decision boundary for pedal width vs pedal length   
+    max_x_axs, min_x_axs = X.iloc[:, 0].max() * 1.1, X.iloc[:, 0].min() * 0.70
+    max_y_axs, min_y_axs = X.iloc[:, 1].max() * 1.1, X.iloc[:, 1].min() * 0.70
+    
+    plot_step_x = 0.005 * min_x_axs
+    plot_step_y = 0.005 * min_y_axs
     plot_colors = "rybgm"
     
-    max_x_axs, min_x_axs = x_train.iloc[:, 0].max() + 1, x_train.iloc[:, 0].min() - 1
-    max_y_axs, min_y_axs = x_train.iloc[:, 1].max() + 1, x_train.iloc[:, 1].min() - 1
-    
-    xx, yy = np.meshgrid(np.arange(min_x_axs, max_x_axs, plot_step), np.arange(min_y_axs, max_y_axs, plot_step))
+    xx, yy = np.meshgrid(np.arange(min_x_axs, max_x_axs, plot_step_x), np.arange(min_y_axs, max_y_axs, plot_step_y))
     plt.tight_layout(h_pad=1, w_pad=1, pad=2.5)
     
     # Fitting the model for plotting

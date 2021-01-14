@@ -65,7 +65,7 @@ def model_development(dataframe, y_val, x_vals, split_size, rand_state, scoring,
 	X = dataframe.loc[:, x_cols]
 	Y = dataframe.loc[:, y_col]     
     
-	validation_size = 100 - split_size
+	validation_size = (100 - split_size) / 100
 	seed = rand_state
     
 	# global X_train, X_validation, Y_train, Y_validation, models
