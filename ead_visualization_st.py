@@ -36,8 +36,8 @@ def decision_boundary_plot(model, mdl_name, dataframe, y_val, x_vals, split_size
     max_x_axs, min_x_axs = X.iloc[:, 0].max() * 1.1, X.iloc[:, 0].min() * 0.70
     max_y_axs, min_y_axs = X.iloc[:, 1].max() * 1.1, X.iloc[:, 1].min() * 0.70
     
-    plot_step_x = 0.005 * min_x_axs
-    plot_step_y = 0.005 * min_y_axs
+    plot_step_x = 0.003 * (max_x_axs - min_x_axs)
+    plot_step_y = 0.003 * (max_y_axs - min_y_axs)
     plot_colors = "rybgm"
     
     xx, yy = np.meshgrid(np.arange(min_x_axs, max_x_axs, plot_step_x), np.arange(min_y_axs, max_y_axs, plot_step_y))

@@ -423,7 +423,7 @@ else:
     ###### Decision Boundary Plots
         if model_type.lower() == 'classification':    
             st.success('**Decision Boundary Plots** of Model(s)')
-            st.write('**Select *ONLY* two variables**')
+            #st.write('**Select *ONLY* two variables**')
             # Two X variabls selected
             #sel_x = st.multiselect(' ', options= list(df_sample.columns), default=list(df_sample.columns[0:2]))
             #if st.button('Generate Plots'):
