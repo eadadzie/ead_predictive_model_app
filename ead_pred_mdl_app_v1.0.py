@@ -51,12 +51,6 @@ html_main_header = '''
 
 st.markdown(html_main_header.format("#078E61", "white", main_header), unsafe_allow_html=True)
 
-# "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRs2R2RNHAJAhQbW7NXlbgRSBmf2QicIa5cYw&usqp=CAU"
-# "https://symbolikon.com/wp-content/uploads/edd/2019/09/Adinkra-akomantoaso-bold-400w.png"
-# "https://www.hartenergy.com/sites/default/files/image/2019/02/predictiveanalyticswordcloud.jpg"
-# "https://upload.wikimedia.org/wikipedia/commons/f/ff/Wawa_aba.png"
-# "https://symbolikon.com/wp-content/uploads/edd/2019/09/Adinkra-nsaa-bold-400w.png"
-
 col1, col3, mid, col2, col4 = st.beta_columns([1,1,2,1,1])
 with col1:
     st.write('\n ###')

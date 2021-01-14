@@ -93,8 +93,8 @@ def data_graph(df, classes=None, plt_type='correlation', mdl_type='classificatio
         #matrix = np.triu(df.corr())
         ax1 = sns.heatmap(df.corr(), vmin=-1, vmax=1, annot=True, cmap='BrBG', mask=None, annot_kws={"size":8})
         ax1.set_title('Correlation Heatmap', fontdict={'fontsize':12}, pad=12)
-        ax1.set_xticklabels(ax1.get_xmajorticklabels(), fontsize = 8)
-        ax1.set_yticklabels(ax1.get_ymajorticklabels(), fontsize = 8)
+        ax1.set_xticklabels(ax1.get_xmajorticklabels(), fontsize = 8, rotation=90)
+        ax1.set_yticklabels(ax1.get_ymajorticklabels(), fontsize = 8, rotation=0)
         st.pyplot(fig1)
     elif plt_type.lower() == 'scatter':
         fig2, ax2 = plt.subplots()
@@ -102,11 +102,16 @@ def data_graph(df, classes=None, plt_type='correlation', mdl_type='classificatio
         st.pyplot(ax2)
     elif plt_type.lower() == 'box':
         fig3, ax3 = plt.subplots()
+        plt.xticks(fontsize=7, rotation=90)
+        plt.yticks(fontsize=7, rotation=0)
         ax3 = sns.boxplot(data=df)
         st.pyplot(fig3)
     elif plt_type.lower() == 'parallel_coordinates':
         fig4, ax4 = plt.subplots()
-        parallel_coordinates(df, classes)  # color = ['blue', 'red', 'green'], color='rbgymk'
+        plt.xticks(fontsize=7, rotation=90)
+        plt.yticks(fontsize=7, rotation=0)
+        parallel_coordinates(df, classes, color= ['#556270', '#4ECDC4', '#C7F464', 'blue', 'red', 'green', 'orange','purple', 
+                                                  'magenta', 'cyan', 'gold', '#2e8ad8', '#cd3785', '#c64c00', '#889a00'])  
         st.pyplot(fig4)
     elif plt_type.lower() == 'violin':
         cnt5 = 0
