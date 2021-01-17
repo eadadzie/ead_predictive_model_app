@@ -57,19 +57,21 @@ n_trees = 100
 l_rate = 0.1
 m_depth = None
 ## Build ML models
-def model_development(dataframe, y_val, x_vals, split_size, rand_state, scoring, algm_models, sel_algms=['KNN','CART','NB'], out_put='classification'):  # sel_algms=['KNN','CART','NB']
-	y_col = y_val
-	x_cols = x_vals  # list(dataframe.columns)
+#@st.cache(suppress_st_warning=True)
+def model_development(dataframe, y_val, x_vals, split_size, rand_state, scoring, algm_models, sel_algms=['KNN','CART','NB'], out_put='classification', n_folds=10, stratify=None):  # sel_algms=['KNN','CART','NB']
+	#y_col = y_val
+	#x_cols = x_vals  # list(dataframe.columns)
 	#x_cols.remove(y_col)
+	balance_data = dataframe[y_val] if stratify == 'Balanced' else None
     
-	X = dataframe.loc[:, x_cols]
-	Y = dataframe.loc[:, y_col]     
+	X = dataframe.loc[:, x_vals]
+	Y = dataframe.loc[:, y_val]     
     
 	validation_size = (100 - split_size) / 100
 	seed = rand_state
     
 	# global X_train, X_validation, Y_train, Y_validation, models
-	X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, test_size=validation_size, random_state=seed)
+	X_train, X_validation, Y_train, Y_validation = model_selection.train_test_split(X, Y, test_size=validation_size, random_state=seed, stratify=balance_data)
 	
     # evaluate each model in turn
 	results = []
@@ -78,7 +80,7 @@ def model_development(dataframe, y_val, x_vals, split_size, rand_state, scoring,
 	cv_std = []
     # Looping to create models for Cross Validation
 	for name, model in algm_models.items():
-		kfold = model_selection.KFold(n_splits=10, random_state=None)
+		kfold = model_selection.KFold(n_splits=n_folds, random_state=None)
 		cv_results = model_selection.cross_val_score(model, X_train, Y_train, cv=kfold, scoring=scoring)
 		results.append(cv_results)
 		names.append(name)

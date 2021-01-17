@@ -30,8 +30,9 @@ from sklearn.gaussian_process import GaussianProcessRegressor
 from sklearn.gaussian_process.kernels import DotProduct, WhiteKernel
 from sklearn.neural_network import MLPRegressor 
 
-from ead_visualization_st import data_graph, decision_boundary_plot
+from ead_visualization_st import data_graph, decision_boundary_plot, decision_boundary_plot_2
 from ead_ml_tunning_st import model_development
+from ead_data_scaling import scale_data
 
 ######################### Setting up Interactive Interface  #######################
 #---------------------------------#
@@ -39,6 +40,34 @@ from ead_ml_tunning_st import model_development
 ## Page expands to full width
 st.set_page_config(page_title='ML Predictive Modeling App, Beta Vsn',
     layout='wide')
+
+#*********************************#
+# Adding style to streamlit elements
+## Function to read the css file from local drive
+def local_css(file_name):
+    with open(file_name) as f:
+        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+
+## Function to read the css file from remote location
+def remote_css(url):
+    st.markdown(f'<link href="{url}" rel="stylesheet">', unsafe_allow_html=True) 
+
+# Call function to read file from local
+local_css("ead_pred_app.css")
+
+# Call function to read file remote
+remote_css('https://fonts.googleapis.com/icon?family=Material+Icons')
+
+# # Trying to change the style of radio buttons
+# st.markdown('<style>div.Widget.row-widget.stRadio > div{flex-direction:row; font-size:300px}</style>', unsafe_allow_html=True)
+
+# ## Code to hide the first option of all radio button on your streamlit web app
+# # st.markdown(
+# #     """ <style>
+# #             div[role="radiogroup"] >  :first-child{display: None !important;}
+# #             font-size: 300px;
+# #         </style>
+# #         """, unsafe_allow_html=True)
 
 #---------------------------------#
 main_header = """Machine Learning Predictive Modeling App: Beta Version 1.0"""
@@ -48,7 +77,6 @@ html_main_header = '''
 <h1 style="color:{}; font-size:50px; text-align:center">{}</h1>
 </div>
 '''
-
 st.markdown(html_main_header.format("#078E61", "white", main_header), unsafe_allow_html=True)
 
 col1, col3, mid, col2, col4 = st.beta_columns([1,1,2,1,1])
@@ -148,6 +176,11 @@ with st.beta_expander("Model Building and Output"):
     variables* must be selected to avoid error pop-ups. In the case of *regression*, **a summary results, bar chart of the reults, 
     and regression report** are produced for each algorithm. The download approach is the same as the above-mentioned.
     .""")
+    
+with st.beta_expander("How to Use this App"):
+    st.write("""
+    This section will be completed soon to aid users in the use of the app.
+    """)
 
 st.markdown('\n## \n##')
 
@@ -211,12 +244,23 @@ algm_list = [key for key in algm_dict.keys() if algm_dict[key]==True]
 st.sidebar.header('Set Parameters')
 # Select type of metric
 if model_type == 'Classification':
-    score_metric = st.sidebar.selectbox('Select Metric', options=['accuracy', 'f1', 'f1_weighted', 'roc_auc', 'recall', 'precision'])
+    score_metric = st.sidebar.selectbox('Performance Metric', options=['accuracy', 'f1', 'f1_weighted', 'roc_auc', 'recall', 'precision'])
 else:
-    score_metric = st.sidebar.selectbox('Select Metric', options=['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error', 'neg_root_mean_squared_error', 'neg_mean_absolute_percentage_error', 'explained_variance'])
+    score_metric = st.sidebar.selectbox('Performance Metric', options=['r2', 'neg_mean_squared_error', 'neg_mean_absolute_error', 'neg_root_mean_squared_error', 'neg_mean_absolute_percentage_error', 'explained_variance'])
 
-split_size = st.sidebar.slider('Select % of training set', 10, 90, 80, 5)
-rand_state = st.sidebar.slider('Seed number (random_state)', 0, 1000, 42, 1)
+# Widget for data Split percentage and Type
+split_size = st.sidebar.slider('Percentage (%) of Training Set', 10, 90, 80, 5)
+if model_type == 'Classification':
+    split_type = st.sidebar.select_slider('Split Type', options=['Balanced', 'Unbalanced'])
+else:
+    split_type = None
+
+# Seed number
+rand_state = st.sidebar.number_input('Seed Number (random_state)', 0, 1000, 45, 10)  # Slider
+
+# Widgt for number of CV fold
+cv_folds = st.sidebar.number_input('Cross-Validation Folds', 2, 50, 10, 1)
+
 
 ### All Classifiers and Regressors
 # Parameters
@@ -267,16 +311,58 @@ else: '=> Invalid input for argument: "output"'
 #---------------------------------#
 # Main panel
 
+st.markdown('<style>div.Widget.row-widget.stRadio > div{flex-direction:row;}</style>', unsafe_allow_html=True)
+
 #---------------------------------#
 if file_upload is not None:
     # Displays the dataset
     st.warning('**1.0** **Explore** the dataset')
-    df = pd.read_csv(file_upload)
-    st.write(df.head(10))
+    data_cols = st.beta_columns(2)
+    with data_cols[0]:
+        headers = st.radio('Dataset includes column headers', options=['True', 'False'])
+    col_headers = 'infer' if headers == 'True' else None
+    with data_cols[1]:
+        data_scale = st.radio('Type of Scaling', options=['Unscaled', 'Standardized', 'Normalized'])
+    st.markdown('\n #####')
+    # Import Raw dataset
+    df_raw = pd.read_csv(file_upload, header=col_headers)
+    
+    # Scaling dataset
+    if data_scale == 'Unscaled':
+        df = df_raw
+    elif data_scale == 'Standardized':
+        stand_cols = st.multiselect('Column(s) to Scale', options = list(df_raw.columns), default=list(df_raw.columns))
+        exempt_cols_indx = [df_raw.columns.get_loc(col) for col in df_raw.columns if col not in stand_cols]
+        #st.write(exempt_cols_indx)
+        try:
+            df = scale_data(df_raw, ex_list= exempt_cols_indx, transform= 'stand')
+            df = df.infer_objects()
+        except TypeError as te1:
+            st.error(f'''**Input Error:** {te1}\n
+                 Columns with STRING values cannot be scaled. Remove column(s) with string values.
+                ''')
+            st.stop()
+    else: #data_scale == 'Standardize':
+        norm_cols = st.multiselect('Column(s) to Scale', options = list(df_raw.columns), default=list(df_raw.columns))
+        exempt_cols_indx = [df_raw.columns.get_loc(col) for col in df_raw.columns if col not in norm_cols]
+        #st.write(exempt_cols_indx)
+        try:
+            df = scale_data(df_raw, ex_list= exempt_cols_indx, transform= 'norm')
+            df = df.infer_objects()
+        except TypeError as te1:
+            st.error(f'''**Input Error:** {te1}\n
+                 Columns with STRING values cannot be scaled. Remove column(s) with string values.
+                ''')
+            st.stop()
+        
+    st.markdown('\n ####')
+    st.write(data_scale + ' Dataset', df.head(10))
     # Shape of data
     st.write('*Dimensions of dataset*')
     st.info(f'{df.shape[0]} **rows**,  {df.shape[1]} **columns**')
+    #st.info(f'**Data types of columns** {df.info()}')
     
+    # Stats for imported data
     st.write('**Stats of dataset**')
     st.write('*Descriptive stats*')
     st.write(df.describe())
@@ -297,17 +383,23 @@ if file_upload is not None:
     
     ### Graphs from final modeified dataset
     st.warning('**2.0 Visualize** the Dataset')
-    graph_sel = st.select_slider('Select plot', options=['correlation', 'scatter', 'box', 'parallel_coordinates', 'violin', 'histogram'])
+    graph_sel = st.selectbox('Select plot', options=['Correlation Matrix', 'Scatter Matrix', 'Box & Whisker', 'Parallel Coordinates', 'Violin', 'Histogram']) # select_slider
     try:
         graph_list = data_graph(df[sel_x_vals + [y_val]], classes=y_val, plt_type=graph_sel, mdl_type=model_type) 
     except ValueError as ve1:
         st.error(f'''**Input Error:** {ve1}\n
                  X variables cannot be a STRING. Remove input of X variable(s) with string values.
                 ''')
+    except TypeError as te1:
+            #if 'unsupported operand' in str(te1):    
+            st.error(f'''**Input Error:** {te1}\n
+            1. Y variable must be a set of STRING values for this plot. Current input variable has FLOAT values.\n
+            ''')
     st.markdown('#\n')
     
     ### Build the models
     st.warning('**3.0 Build** the ML Models')
+    st.markdown('\n #####')
     st.info(f'''**Modeling Input**\n
             a) Modeling type       : {model_type}\n
             b) Selected algorithms : {algm_list}\n
@@ -317,12 +409,14 @@ if file_upload is not None:
             f) Y variable          : {y_val}\n
             f) X variable(s)       : {sel_x_vals}\n
             ''')
+    st.markdown('\n ###')  # Putting space
+    
     b1 = st.button('Run Model(s)', key='1')
     #b2 = st.button('')
     #if st.button('Run Model(s)'): 
     if b1:
         try:
-            model_development(df, y_val, sel_x_vals, split_size, rand_state, scoring, algm_models= models, sel_algms=algm_list, out_put=model_type)
+            model_development(df, y_val, sel_x_vals, split_size, rand_state, scoring, algm_models= models, sel_algms=algm_list, out_put=model_type, n_folds=cv_folds, stratify=split_type)
         except ValueError as ve:
             if 'continuous' in str(ve):
                 st.error(f'''**Input Error:** {ve}\n
@@ -340,13 +434,16 @@ if file_upload is not None:
 
         
         ####################### Decision Boundaries ###############################
+    st.markdown('\n ###')   # Putting space
     if model_type.lower() == 'classification':
         st.success('**Decision Boundary Plots** of Model(s)')
         st.write('**Select *ONLY* two variables**')
         # Two X variabls selected
         sel_x = st.multiselect(' ', options= list(df.columns), default=list(df.columns[0:2]))
         #if st.button('Generate Plots'):
+        st.markdown('\n ###')  # Putting space
         b2 = st.button('Generate Plots', key='2')
+        st.markdown('\n ###')  # Putting space
         if b1 | b2:            
             if len(algm_list) == 1:
                 num_cols = 1
@@ -360,11 +457,14 @@ if file_upload is not None:
             for name, model in models.items():
                 fig_db, ax_db = plt.subplots(figsize=(5, 3))
                 try:
-                    ax_db = decision_boundary_plot(model, name, df, y_val, sel_x, split_size, rand_state)
+                    ax_db = decision_boundary_plot_2(model, name, df, y_val, sel_x, split_size, rand_state)
                 except ValueError as ve:
-                    #if 'data dimension' in str(ve):
-                    st.error(f'''**Input Error - {name}:** {ve}\n
-                    Exactly 2 variables needed for plots. {len(sel_x)} variables selected.''')
+                    if 'convert string to float' in str(ve):
+                        st.error(f'''**Input Error - {name}:** {ve}\n
+                                 Variable cannot have STRING values. Remove variable(s) containing strings.''')
+                    else:
+                        st.error(f'''**Input Error - {name}:** {ve}\n
+                        Exactly 2 variables needed for plots. {len(sel_x)} variables selected.''')
                 except IndexError as ie:
                     st.error(f'''**Input Error - {name}:** {ie}\n
                     Exactly 2 variables needed for plots. {len(sel_x)} variables selected. Add another numeric variable.''')
@@ -403,7 +503,7 @@ else:
         st.info(list(df_sample.columns[:-1]))
         
         try:
-            model_development(df_sample, df_sample.columns[-1], df_sample.columns[0:-1], split_size, rand_state, scoring, algm_models= models, sel_algms=algm_list, out_put=model_type)
+            model_development(df_sample, df_sample.columns[-1], df_sample.columns[0:-1], split_size, rand_state, scoring, algm_models= models, sel_algms=algm_list, out_put=model_type, n_folds=cv_folds, stratify=split_type)
         except ValueError as ve:
             if 'continuous' in str(ve):
                 st.error(f'''**Input Error:** {ve}\n
@@ -441,7 +541,7 @@ else:
             for name, model in models.items():
                 fig_db, ax_db = plt.subplots(figsize=(5, 3))
                 try:
-                    ax_db = decision_boundary_plot(model, name, df_sample, df_sample.columns[-1], df_sample.columns[0:2], split_size, rand_state)
+                    ax_db = decision_boundary_plot_2(model, name, df_sample, df_sample.columns[-1], df_sample.columns[0:2], split_size, rand_state)
                 except ValueError as ve:
                     #if 'data dimension' in str(ve):
                     st.error(f'''**Input Error - {name}:** {ve}\n

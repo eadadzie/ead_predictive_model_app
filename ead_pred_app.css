@@ -1,0 +1,33 @@
+/*
+body {
+    color: #fff;
+    background-color: #4F8BF9;
+} 
+*/
+
+.stButton>button {
+    color: White; //#4F8BF9;
+    background-color: MediumSeaGreen;
+    font-size: 16px;
+    //border-radius: 50%;
+    height: 3.5em;
+    //width: 9em;
+}
+
+/*
+.stRadio>radio {
+    color: White; //#4F8BF9;
+    background-color: MediumSeaGreen;
+    font-size: 20px;
+    //border-radius: 50%;
+    //height: 3.5em;
+    //width: 9em;
+}
+*/
+
+/*
+.stTextInput>div>div>input {
+    color: #4F8BF9;
+} 
+*/
+
