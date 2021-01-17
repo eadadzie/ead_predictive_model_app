@@ -461,7 +461,10 @@ if file_upload is not None:
                 except ValueError as ve:
                     if 'convert string to float' in str(ve):
                         st.error(f'''**Input Error - {name}:** {ve}\n
-                                 Variable cannot have STRING values. Remove variable(s) containing strings.''')
+                        Variable cannot have STRING values. Remove variable(s) containing strings.''')
+                    elif 'integer array' in str(ve):
+                        st.error(f'''**Input Error - {name}:** {ve}\n
+                        Y variable must be INTEGER or STRING values for this plot. Consider selecting a variable with such data types.''')
                     else:
                         st.error(f'''**Input Error - {name}:** {ve}\n
                         Exactly 2 variables needed for plots. {len(sel_x)} variables selected.''')

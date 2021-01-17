@@ -95,9 +95,9 @@ def decision_boundary_plot_2(model, mdl_name, dataframe, y_val, x_vals, split_si
     model.fit(X, Y_en)
     
     # Plotting parameters
-    scatter_kwargs = {'s': 50, 'edgecolor': None, 'alpha': 0.7}
+    scatter_kwargs = {'s': 35, 'edgecolor': None, 'alpha': 0.7}
     contourf_kwargs = {'alpha': 0.2}
-    scatter_highlight_kwargs = {'s': 50, 'label': 'Test data', 'alpha': 0.7}
+    scatter_highlight_kwargs = {'s': 35, 'label': 'Test data', 'alpha': 0.7}
     
     # Plot boundaries
     ax = plot_decision_regions(X=X.values, y=Y_en.values, clf=model, legend=0, X_highlight=None, scatter_kwargs=scatter_kwargs, 
