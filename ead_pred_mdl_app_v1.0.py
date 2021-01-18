@@ -394,7 +394,14 @@ if file_upload is not None:
     st.write('**Select X variables:**')
     x_vals = list(df.columns)
     x_vals.remove(y_val)
-    sel_x_vals = st.multiselect('', options= x_vals, default=x_vals)
+    # Check for non-numeric columns and drop them. Create a list of names of the numeric columns
+    check_numeric = df[x_vals].apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all()).to_frame(name='numeric')
+    numeric_cols = check_numeric.loc[check_numeric['numeric'] == 1].index.tolist()
+    # Create multi-select for X vals with the numeric columns as the default to show for first run
+    sel_x_vals = st.multiselect('', options= x_vals, default=numeric_cols)
+    excluded_cols = [col for col in x_vals if col not in sel_x_vals]
+    if len(excluded_cols) > 0:
+            st.info(f'**Non-numberic and User dropped columns:** *{excluded_cols}*')
     st.markdown('#\n')
     
     ### Graphs from final modeified dataset
