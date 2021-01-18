@@ -331,8 +331,16 @@ if file_upload is not None:
     if data_scale == 'Unscaled':
         df = df_raw
     elif data_scale == 'Standardized':
-        stand_cols = st.multiselect('Column(s) to Scale', options = list(df_raw.columns), default=list(df_raw.columns))
+        # Check for non-numeric columns and drop them. Create a list of names of the numeric columns
+        check_numeric = df_raw.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all()).to_frame(name='numeric')
+        numeric_cols = check_numeric.loc[check_numeric['numeric'] == 1].index.tolist() 
+        # Create multi-select with the numeric columns as the default to show for first run
+        stand_cols = st.multiselect('Column(s) to Scale', options = list(df_raw.columns), default=numeric_cols)
+        # Create exclusion list for non-numeric and user dropped columns
         exempt_cols_indx = [df_raw.columns.get_loc(col) for col in df_raw.columns if col not in stand_cols]
+        exempt_col_names = [col for col in df_raw.columns[exempt_cols_indx]] 
+        if len(exempt_cols_indx) > 0:
+            st.info(f'**Non-numberic and User dropped columns:** *{exempt_col_names}*')
         #st.write(exempt_cols_indx)
         try:
             df = scale_data(df_raw, ex_list= exempt_cols_indx, transform= 'stand')
@@ -343,8 +351,16 @@ if file_upload is not None:
                 ''')
             st.stop()
     else: #data_scale == 'Standardize':
-        norm_cols = st.multiselect('Column(s) to Scale', options = list(df_raw.columns), default=list(df_raw.columns))
+        # Check for non-numeric columns and drop them. Create a list of names of the numeric columns
+        check_numeric = df_raw.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all()).to_frame(name='numeric')
+        numeric_cols = check_numeric.loc[check_numeric['numeric'] == 1].index.tolist() 
+        # Create multi-select with the numeric columns as the default to show for first run
+        norm_cols = st.multiselect('Column(s) to Scale', options = list(df_raw.columns), default=numeric_cols)
+        # Create exclusion list for non-numeric and user dropped columns
         exempt_cols_indx = [df_raw.columns.get_loc(col) for col in df_raw.columns if col not in norm_cols]
+        exempt_col_names = [col for col in df_raw.columns[exempt_cols_indx]] 
+        if len(exempt_cols_indx) > 0:
+            st.info(f'**Non-numberic and User dropped columns:** *{exempt_col_names}*')
         #st.write(exempt_cols_indx)
         try:
             df = scale_data(df_raw, ex_list= exempt_cols_indx, transform= 'norm')
@@ -374,9 +390,9 @@ if file_upload is not None:
     
     ### Dataset and Preprocessing
     st.write('**Select Y variable:**')
-    y_val = st.selectbox('', options = df.columns)
+    y_val = st.selectbox('', options = df.columns, index = (len(df.columns) - 1))
     st.write('**Select X variables:**')
-    x_vals =  list(df.columns)
+    x_vals = list(df.columns)
     x_vals.remove(y_val)
     sel_x_vals = st.multiselect('', options= x_vals, default=x_vals)
     st.markdown('#\n')
