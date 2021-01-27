@@ -58,26 +58,45 @@ local_css("ead_pred_app.css")
 # Call function to read file remote
 remote_css('https://fonts.googleapis.com/icon?family=Material+Icons')
 
-# # Trying to change the style of radio buttons
-# st.markdown('<style>div.Widget.row-widget.stRadio > div{flex-direction:row; font-size:300px}</style>', unsafe_allow_html=True)
-
-# ## Code to hide the first option of all radio button on your streamlit web app
-# # st.markdown(
-# #     """ <style>
-# #             div[role="radiogroup"] >  :first-child{display: None !important;}
-# #             font-size: 300px;
-# #         </style>
-# #         """, unsafe_allow_html=True)
-
 #---------------------------------#
+# progress_bar = '''
+# <div style="position:fixed; top:0px;">
+# {}
+# </div>
+# '''
+# st.markdown(progress_bar.format(st.progress(0)), unsafe_allow_html=True)
+
+### Creating Main header using HTML header tag
 main_header = """Machine Learning Predictive Modeling App: Beta Version 1.0"""
 #bgcolor = st.color_picker('Select color:')
 html_main_header = '''
-<div style="background-color:{}; padding:50px">
+<div style="background-color:{}; padding:50px; position:relative; top:0px;">
 <h1 style="color:{}; font-size:50px; text-align:center">{}</h1>
 </div>
 '''
 st.markdown(html_main_header.format("#078E61", "white", main_header), unsafe_allow_html=True)
+
+### Creating Footer using HTML footer tag
+hide_streamlit_style = """
+            <style>
+            #MainMenu {visibility: show;}
+            footer {visibility: hidden;}
+            footer:after {
+            font-color: Blue;
+	        content:'Development in progress, EAD app';
+	        visibility: visible;
+	        display: block;
+	        position: relative;   /*relative, absolute, flex, fixed */
+            bottom: 0px;
+            #top: 100px;
+	        background-color: gray;
+	        padding: 10px;}
+            </style>
+            """
+st.markdown(hide_streamlit_style, unsafe_allow_html=True) 
+
+# html_footer= ''''<footer> <p> Development in progress, EAD app </p> </footer>'''
+# st.markdown(html_footer, unsafe_allow_html=True) 
 
 col1, col3, mid, col2, col4 = st.beta_columns([1,1,2,1,1])
 with col1:
@@ -237,8 +256,7 @@ elif model_type.lower() == 'regression':
 
 # Adding the checkboxes with values == True (ie those selected)
 algm_list = [key for key in algm_dict.keys() if algm_dict[key]==True]
-    
-#st.write('Selected algorithms:', algm_list)
+
 
 ### Sidebar - Specify parameter settings
 st.sidebar.header('Set Parameters')
@@ -329,7 +347,7 @@ if file_upload is not None:
     
     # Scaling dataset
     if data_scale == 'Unscaled':
-        df = df_raw
+        df = df_raw.infer_objects()
     elif data_scale == 'Standardized':
         # Check for non-numeric columns and drop them. Create a list of names of the numeric columns
         check_numeric = df_raw.apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all()).to_frame(name='numeric')
@@ -466,7 +484,7 @@ if file_upload is not None:
         #if st.button('Generate Plots'):
         st.markdown('\n ###')  # Putting space
         b2 = st.button('Generate Plots', key='2')
-        st.markdown('\n ###')  # Putting space
+        st.markdown('\n ####')  # Putting space
         if b1 | b2:            
             if len(algm_list) == 1:
                 num_cols = 1
@@ -475,34 +493,44 @@ if file_upload is not None:
             elif len(algm_list) >= 4:
                 num_cols = 3  
             else: num_cols = 3
+            ## Progress bar
+            db_progress = st.progress(0)
+            st.markdown('\n ####')
+            pro_cnt = 0
             cnt3 = 0
             db_cols = st.beta_columns(num_cols)
-            for name, model in models.items():
-                fig_db, ax_db = plt.subplots(figsize=(5, 3))
-                try:
-                    ax_db = decision_boundary_plot_2(model, name, df, y_val, sel_x, split_size, rand_state)
-                except ValueError as ve:
-                    if 'convert string to float' in str(ve):
-                        st.error(f'''**Input Error - {name}:** {ve}\n
+            with st.spinner('Processing plots... ⏳'):
+                for name, model in models.items():
+                    fig_db, ax_db = plt.subplots(figsize=(5, 3))
+                    try:
+                        ax_db = decision_boundary_plot_2(model, name, df, y_val, sel_x, split_size, rand_state)
+                    except ValueError as ve:
+                        if 'convert string to float' in str(ve):
+                            st.error(f'''**Input Error - {name}:** {ve}\n
+                            Variable cannot have STRING values. Remove variable(s) containing strings.''')
+                        elif 'integer array' in str(ve):
+                            st.error(f'''**Input Error - {name}:** {ve}\n
+                            Y variable must be INTEGER or STRING values for this plot. Consider selecting a variable with such data types.''')
+                        else:
+                            st.error(f'''**Input Error - {name}:** {ve}\n
+                            Exactly 2 variables needed for plots. {len(sel_x)} variables selected.''')
+                    except IndexError as ie:
+                        st.error(f'''**Input Error - {name}:** {ie}\n
+                        Exactly 2 variables needed for plots. {len(sel_x)} variables selected. Add another numeric variable.''')
+                    except TypeError as te:
+                        st.error(f'''**Input Error - {name}:** {te}\n
                         Variable cannot have STRING values. Remove variable(s) containing strings.''')
-                    elif 'integer array' in str(ve):
-                        st.error(f'''**Input Error - {name}:** {ve}\n
-                        Y variable must be INTEGER or STRING values for this plot. Consider selecting a variable with such data types.''')
-                    else:
-                        st.error(f'''**Input Error - {name}:** {ve}\n
-                        Exactly 2 variables needed for plots. {len(sel_x)} variables selected.''')
-                except IndexError as ie:
-                    st.error(f'''**Input Error - {name}:** {ie}\n
-                    Exactly 2 variables needed for plots. {len(sel_x)} variables selected. Add another numeric variable.''')
-                except TypeError as te:
-                    st.error(f'''**Input Error - {name}:** {te}\n
-                    Variable cannot have STRING values. Remove variable(s) containing strings.''')
-                # Display decision boundaries in plot columns/grid
-                db_cols[cnt3].pyplot(fig_db)
-                # Display download links download columns/grid               
-                cnt3 += 1
-                if cnt3 > num_cols - 1:
-                    cnt3 = 0
+                    # Display decision boundaries in plot columns/grid
+                    db_cols[cnt3].pyplot(fig_db)
+                    # Display download links download columns/grid               
+                    cnt3 += 1
+                    if cnt3 > num_cols - 1:
+                        cnt3 = 0
+                    # Status bar beginning
+                    pro_cnt += 1
+                    db_progress.progress(pro_cnt/len(models.keys()))
+            st.success('Done!')
+            #st.balloons()
             st.markdown('#\n')
      
 else:
